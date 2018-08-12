@@ -1,0 +1,4 @@
+
+logging:
+  level:
+    net.consensys.kauri.lib.statemachine: TRACE
