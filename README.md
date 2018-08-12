@@ -25,7 +25,6 @@ Declare an Enumeration every states
 ```
 public enum TaskState {
     OPENED, IN_PROGRESS, CLOSED, CANCELED;
-
 }
 ```
 
@@ -50,8 +49,8 @@ On the entity that drives the state, add a field annotated with `@State`
 @Document
 public class Task {
     private @Id String id;
-    private @State State state;
-    private String content;
+    private @State TaskState state;
+    private String taskContent;
 }
 ```
 
