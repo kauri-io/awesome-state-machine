@@ -36,7 +36,6 @@ Declare an Enumeration to list all events that can change the state
 public enum TaskEvent {
     START_WORKING, END_TASK;
 }
-
 ```
 
 
