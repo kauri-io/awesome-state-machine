@@ -73,7 +73,30 @@
                     <target>${java.version}</target>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.5.3</version>
+                <configuration>
+                        <tagNameFormat>v@{project.version}</tagNameFormat>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
+
+    <scm>
+        <connection>scm:git:git@github.com:kauri-io/awesome-state-machine.git</connection>
+        <developerConnection>scm:git:git@github.com:kauri-io/awesome-state-machine.git</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
+
+    <distributionManagement>
+        <repository>
+            <id>bintray</id>
+            <url>https://api.bintray.com/maven/consensys/kauri/awesome-state-machine/;publish=1</url>
+        </repository>
+    </distributionManagement>
+
+
 
 </project>
