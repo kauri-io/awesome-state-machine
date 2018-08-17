@@ -35,7 +35,7 @@ public class StateMachineImpl<S extends Enum<S>, E extends Enum<E>, T, I extends
     /**
      * List of transitions
      */
-    private final List<Transition<S, E, T>> transitions;
+    private final List<Transition<S, E, T, I>> transitions;
     
     /**
      * beforeAll
@@ -51,7 +51,7 @@ public class StateMachineImpl<S extends Enum<S>, E extends Enum<E>, T, I extends
      */
     private final Optional<Consumer<T>> afterAll;
     
-    public StateMachineImpl(List<Transition<S, E, T>> transitions, CrudRepository<T, I> repository) {
+    public StateMachineImpl(List<Transition<S, E, T, I>> transitions, CrudRepository<T, I> repository) {
         this.transitions = ValidatorUtils.requireNonEmpty(transitions, "transitions");
 
         this.beforeAll = Optional.ofNullable(repository)
@@ -81,10 +81,21 @@ public class StateMachineImpl<S extends Enum<S>, E extends Enum<E>, T, I extends
             throw new StateMachineConfigurationException("A repositoy needs to be configured");
         }
         
+
+        //////////////////////////////////////////////////////////////////////////////////////
+        // Check if a transition exists for this events in the configuration
+        Optional<Transition<S, E, T, I>> checkTransition = transitions.stream().filter( t -> t.getEvent().equals(event) ).findFirst();
+        if(!checkTransition.isPresent()) {
+            log.warn("No transition found for the event {}", event);
+            return;
+        }
+        Transition<S, E, T, I> transition = checkTransition.get();
         
         //////////////////////////////////////////////////////////////////////////////////////
         // Execute beforeAll function that returns the entity
-        T entity = beforeAll.get().apply(id);
+        T entity = Optional.ofNullable(transition.getBeforeAll())
+            .map(f-> f.apply(id))
+            .orElseGet(() -> beforeAll.get().apply(id));
         log.trace("beforeAll -> {}", entity);
 
         
@@ -95,7 +106,11 @@ public class StateMachineImpl<S extends Enum<S>, E extends Enum<E>, T, I extends
         
         //////////////////////////////////////////////////////////////////////////////////////
         // Execute afterAll function that saves the entity
-        afterAll.get().accept(entity);       
+        if(Optional.ofNullable(transition.getAfterAll()).isPresent()) {
+            transition.getAfterAll().accept(entity);
+        } else {
+            this.afterAll.get().accept(entity);
+        }
     }
 
 
@@ -108,16 +123,16 @@ public class StateMachineImpl<S extends Enum<S>, E extends Enum<E>, T, I extends
         ValidatorUtils.requireNonNull(id);
         ValidatorUtils.requireNonNull(entity);
         
-        
+
+
         //////////////////////////////////////////////////////////////////////////////////////
         // Check if a transition exists for this events in the configuration
-        Optional<Transition<S, E, T>> checkTransition = transitions.stream().filter( t -> t.getEvent().equals(event) ).findFirst();
+        Optional<Transition<S, E, T, I>> checkTransition = transitions.stream().filter( t -> t.getEvent().equals(event) ).findFirst();
         if(!checkTransition.isPresent()) {
             log.warn("No transition found for the event {}", event);
             return;
         }
-        Transition<S, E, T> transition = checkTransition.get();
-        log.trace("transition {}", transition);
+        Transition<S, E, T, I> transition = checkTransition.get();
 
 
         //////////////////////////////////////////////////////////////////////////////////////

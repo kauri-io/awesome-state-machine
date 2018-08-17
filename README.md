@@ -13,7 +13,7 @@ Add the following Maven dependency
 <dependency>
     <groupId>net.consensys.spring</groupId>
     <artifactId>awesome-state-machine</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.2T</version>
 </dependency>
 ```
 
