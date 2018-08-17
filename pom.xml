@@ -3,7 +3,7 @@
 
     <groupId>net.consensys.spring</groupId>
     <artifactId>awesome-state-machine</artifactId>
-    <version>0.0.2-SNAPSHOT</version>
+    <version>0.0.2</version>
 
     <properties>
         <java.version>1.8</java.version>
@@ -85,7 +85,7 @@
     <scm>
         <connection>scm:git:git@github.com:kauri-io/awesome-state-machine.git</connection>
         <developerConnection>scm:git:git@github.com:kauri-io/awesome-state-machine.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>v0.0.2</tag>
     </scm>
 
     <distributionManagement>
