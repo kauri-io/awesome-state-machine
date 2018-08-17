@@ -56,6 +56,14 @@ public class StateMachineWithRepositoryTest {
                     .to(EntityStatus.CANCELED, (e, c) -> e.getValue().equals("cancel"))
                     .before((e, c) -> log.info("running before with entity {}", e))
                     .after((e, c) -> log.info("running after with entity {}", e))
+                    .beforeAll((i) -> {
+                        log.info("overeid beforeall");
+                        return repository.findOne(i);
+                    })
+                    .afterAll((e) -> {
+                        log.info("override afterall");
+                        repository.save(e);
+                    })
                     .build());
 
         }

@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 import javax.validation.ValidationException;
 
@@ -29,7 +31,7 @@ import net.consensys.spring.awesome.statemachine.utils.validation.ValidatorUtils
 public abstract class StateMachineConfiguration<S extends Enum<S>, E extends Enum<E>, T, I extends Serializable> {
 
     private final CrudRepository<T, I> repository;
-    private final List<Transition<S, E, T>> transitions;
+    private final List<Transition<S, E, T, I>> transitions;
 
     /* ****************************************************
      * CONSTRUCTORS
@@ -55,7 +57,7 @@ public abstract class StateMachineConfiguration<S extends Enum<S>, E extends Enu
      * @param repository CrudRepository for persistence
      * @param transitions Transitions
      */
-    public StateMachineConfiguration(CrudRepository<T, I> repository, List<Transition<S, E, T>> transitions) {
+    public StateMachineConfiguration(CrudRepository<T, I> repository, List<Transition<S, E, T, I>> transitions) {
         this.repository = repository;
         this.transitions = Optional.ofNullable(transitions).orElseGet(ArrayList::new);
         this.transitions.forEach(StateMachineConfiguration::validate);
@@ -83,7 +85,7 @@ public abstract class StateMachineConfiguration<S extends Enum<S>, E extends Enu
      * Validate a transition (mandatory, condition, etc.)
      * @param transition Transition to validate
      */
-    private static void validate(Transition<?,?,?> transition) {
+    private static void validate(Transition<?,?,?,?> transition) {
 
         ValidatorUtils.requireNonNull(transition, "transition");
         ValidatorUtils.requireNonNull(transition.getEvent(), "transition.event");
@@ -107,7 +109,7 @@ public abstract class StateMachineConfiguration<S extends Enum<S>, E extends Enu
      * @param transition Transition to add
      * @return Transition list
      */
-    protected List<Transition<S, E, T>> add(Transition<S, E, T> transition) {
+    protected List<Transition<S, E, T, I>> add(Transition<S, E, T, I> transition) {
         validate(transition);
         transitions.add(transition);
         return transitions;
@@ -117,7 +119,7 @@ public abstract class StateMachineConfiguration<S extends Enum<S>, E extends Enu
      * Build an empty transition
      * @return Empty transition
      */
-    protected Transition.Builder<S, E, T> transition() {
+    protected Transition.Builder<S, E, T, I> transition() {
         return new Transition.Builder<>();
     }
 
@@ -125,55 +127,69 @@ public abstract class StateMachineConfiguration<S extends Enum<S>, E extends Enu
      * CONFIGURATION MODEL
      * **************************************************** */
     
-    public static class Transition<S extends Enum<S>, E extends Enum<E>, T> {
+    public static class Transition<S extends Enum<S>, E extends Enum<E>, T, I> {
         
         @Getter E event; // Mandatory
         @Getter S from; // Mandatory
         @Getter List<StateTo<S, T>> to; // Mandatory [1,n]
+        @Getter Function<I, T> beforeAll; // Optional - overwrite beforeAll
+        @Getter Consumer<T> afterAll; // Optional - overwrite afterAll
         @Getter BiConsumer<T, Object> before; // Optional
         @Getter BiConsumer<T, Object> after; // Optional
 
-        private Transition(Builder<S, E, T> b) {
+        private Transition(Builder<S, E, T, I> b) {
             this.event = b.event;
             this.from = b.from;
             this.to = b.to;
+            this.beforeAll = b.beforeAll;
+            this.afterAll = b.afterAll;
             this.before = b.before;
             this.after = b.after;
         }
         
-        public static final class Builder<S extends Enum<S>, E extends Enum<E>, T> {
+        public static final class Builder<S extends Enum<S>, E extends Enum<E>, T, I> {
             E event;
             S from;
             List<StateTo<S, T>> to;
+            @Getter Function<I, T> beforeAll;
+            @Getter Consumer<T> afterAll;
             BiConsumer<T, Object> before;
             BiConsumer<T, Object> after;
             
-            public Builder<S, E, T> event(E event) {
+            public Builder<S, E, T, I> event(E event) {
                 this.event = event;
                 return this;
             }
-            public Builder<S, E, T> to(S state) {
+            public Builder<S, E, T, I> to(S state) {
                 return this.to(state, null);
             }
-            public Builder<S, E, T> to(S state, BiFunction<T, Object, Boolean> condition) {
+            public Builder<S, E, T, I> to(S state, BiFunction<T, Object, Boolean> condition) {
                 this.to = Optional.ofNullable(this.to).orElseGet(ArrayList::new);
                 this.to.add(new StateTo.Builder<S, T>().to(state).condition(condition).build());
                 return this;
             }
-            public Builder<S, E, T> from(S from) {
+            public Builder<S, E, T, I> from(S from) {
                 this.from = from;
                 return this;
             }
-            public Builder<S, E, T> before(BiConsumer<T, Object> before) {
+            public Builder<S, E, T, I> before(BiConsumer<T, Object> before) {
                 this.before = before;
                 return this;
             }
-            public Builder<S, E, T> after(BiConsumer<T, Object> after) {
+            public Builder<S, E, T, I> after(BiConsumer<T, Object> after) {
                 this.after = after;
                 return this;
             }
+            public Builder<S, E, T, I> beforeAll(Function<I, T> beforeAll) {
+                this.beforeAll = beforeAll;
+                return this;
+            }
+            public Builder<S, E, T, I> afterAll(Consumer<T> afterAll) {
+                this.afterAll = afterAll;
+                return this;
+            }
 
-            public Transition<S, E, T> build() {
+            public Transition<S, E, T, I> build() {
                 return new Transition<>(this);
             }
         }  
