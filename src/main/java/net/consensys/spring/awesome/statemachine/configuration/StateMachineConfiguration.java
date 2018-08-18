@@ -30,8 +30,8 @@ import net.consensys.spring.awesome.statemachine.utils.validation.ValidatorUtils
  */
 public abstract class StateMachineConfiguration<S extends Enum<S>, E extends Enum<E>, T, I extends Serializable> {
 
-    private final CrudRepository<T, I> repository;
-    private final List<Transition<S, E, T, I>> transitions;
+    protected final CrudRepository<T, I> repository;
+    protected final List<Transition<S, E, T, I>> transitions;
 
     /* ****************************************************
      * CONSTRUCTORS
@@ -193,6 +193,7 @@ public abstract class StateMachineConfiguration<S extends Enum<S>, E extends Enu
                 return new Transition<>(this);
             }
         }  
+ 
     }
     
     public static class StateTo<S extends Enum<S>, T> {
