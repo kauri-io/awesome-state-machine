@@ -3,7 +3,7 @@
 
     <groupId>net.consensys.spring</groupId>
     <artifactId>awesome-state-machine</artifactId>
-    <version>0.0.4-SNAPSHOT</version>
+    <version>0.0.5-SNAPSHOT</version>
 
     <properties>
         <java.version>1.8</java.version>
