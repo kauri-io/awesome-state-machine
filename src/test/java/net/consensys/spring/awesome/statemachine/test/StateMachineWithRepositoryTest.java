@@ -138,7 +138,7 @@ public class StateMachineWithRepositoryTest {
        
     }
     
-    @Test(expected=EntityNotFoundException.class)
+    @Test(expected=RuntimeException.class)
     public void entityNotFound() {
        stateMachine.onTransition(EntityEvent.START_WORKING, "unknow");
     }
