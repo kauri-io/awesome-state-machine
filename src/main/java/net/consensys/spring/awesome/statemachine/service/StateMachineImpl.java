@@ -55,11 +55,11 @@ public class StateMachineImpl<S extends Enum<S>, E extends Enum<E>, T, I extends
         this.transitions = ValidatorUtils.requireNonEmpty(transitions, "transitions");
 
         this.beforeAll = Optional.ofNullable(repository)
-                .map(r -> id -> Optional.ofNullable(r.findOne(id))
-                    .orElseThrow(() -> new EntityNotFoundException("Entity [id: " + id + "] not found")));
+                .map(r -> Throwing.rethrowFunc(id -> Optional.ofNullable(r.findOne(id))
+                    .orElseThrow(() -> new EntityNotFoundException("Entity [id: " + id + "] not found"))));
         
         this.afterAll = Optional.ofNullable(repository)
-                .map(r -> r::save);
+                .map(r -> Throwing.rethrow(r::save));
         
     }
 
@@ -78,7 +78,7 @@ public class StateMachineImpl<S extends Enum<S>, E extends Enum<E>, T, I extends
         ValidatorUtils.requireNonNull(event);
         ValidatorUtils.requireNonNull(id);
         if(!beforeAll.isPresent() || !afterAll.isPresent()) {
-            throw new StateMachineConfigurationException("A repositoy needs to be configured");
+            throw new StateMachineConfigurationException("A repository needs to be configured");
         }
         
 
