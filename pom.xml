@@ -9,8 +9,8 @@
         <java.version>1.8</java.version>
         <lombok.version>1.18.2</lombok.version>
         <validation-api.version>2.0.1.Final</validation-api.version>
-        <spring-boot.version>1.5.6.RELEASE</spring-boot.version>
-        <embeddedmongo.version>1.50.5</embeddedmongo.version>
+        <spring-boot.version>2.1.0.RELEASE</spring-boot.version>
+        <embeddedmongo.version>2.1.1</embeddedmongo.version>
         <maven-compiler.version>3.8.0</maven-compiler.version>
     </properties>
 
@@ -69,6 +69,13 @@
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <useSystemClassLoader>false</useSystemClassLoader>
                 </configuration>
             </plugin>
             <plugin>

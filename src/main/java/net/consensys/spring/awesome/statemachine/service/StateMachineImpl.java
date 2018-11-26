@@ -55,7 +55,7 @@ public class StateMachineImpl<S extends Enum<S>, E extends Enum<E>, T, I extends
         this.transitions = ValidatorUtils.requireNonEmpty(transitions, "transitions");
 
         this.beforeAll = Optional.ofNullable(repository)
-                .map(r -> Throwing.rethrowFunc(id -> Optional.ofNullable(r.findOne(id))
+                .map(r -> Throwing.rethrowFunc(id -> r.findById(id)
                     .orElseThrow(() -> new EntityNotFoundException("Entity [id: " + id + "] not found"))));
         
         this.afterAll = Optional.ofNullable(repository)
