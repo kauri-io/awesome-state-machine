@@ -25,6 +25,8 @@ import net.consensys.spring.awesome.statemachine.test.domain.EntityEvent;
 import net.consensys.spring.awesome.statemachine.test.domain.EntityStatus;
 import net.consensys.spring.awesome.statemachine.test.repository.EntityRepository;
 
+import java.util.Optional;
+
 @RunWith(SpringRunner.class)
 @SpringBootTest()
 @SpringBootApplication
@@ -58,7 +60,7 @@ public class StateMachineWithRepositoryTest {
                     .after((e, c) -> log.info("running after with entity {}", e))
                     .beforeAll((i) -> {
                         log.info("overeid beforeall");
-                        return repository.findOne(i);
+                        return repository.findById(i).get();
                     })
                     .afterAll((e) -> {
                         log.info("override afterall");
@@ -87,9 +89,10 @@ public class StateMachineWithRepositoryTest {
        stateMachine.onTransition(EntityEvent.START_WORKING, entity.getId());
        
        // Fetch object
-       Entity result = repository.findOne(entity.getId());
+       Optional<Entity> result = repository.findById(entity.getId());
        log.info("entity = {}", entity);
-       assertEquals(EntityStatus.IN_PROGRESS, result.getState());
+       assertEquals(true, result.isPresent());
+       assertEquals(EntityStatus.IN_PROGRESS, result.get().getState());
     }
     
     @Test
@@ -103,15 +106,17 @@ public class StateMachineWithRepositoryTest {
        
        // start working
        stateMachine.onTransition(EntityEvent.START_WORKING, entity.getId());
-       Entity result = repository.findOne(entity.getId());
-       log.info("entity = {}", result);
-       assertEquals(EntityStatus.IN_PROGRESS, result.getState());
+       Optional<Entity> result = repository.findById(entity.getId());
+       assertEquals(true, result.isPresent());
+       log.info("entity = {}", result.get());
+       assertEquals(EntityStatus.IN_PROGRESS, result.get().getState());
        
        // Trigger transition
        stateMachine.onTransition(EntityEvent.DECISION, entity.getId());
-       Entity result2 = repository.findOne(entity.getId());
-       log.info("entity = {}", result2);
-       assertEquals(EntityStatus.CLOSED, result2.getState());
+       Optional<Entity> result2 = repository.findById(entity.getId());
+       assertEquals(true, result2.isPresent());
+       log.info("entity = {}", result2.get());
+       assertEquals(EntityStatus.CLOSED, result2.get().getState());
        
     }
     
@@ -126,15 +131,17 @@ public class StateMachineWithRepositoryTest {
        
        // start working
        stateMachine.onTransition(EntityEvent.START_WORKING, entity.getId());
-       Entity result = repository.findOne(entity.getId());
-       log.info("entity = {}", result);
-       assertEquals(EntityStatus.IN_PROGRESS, result.getState());
+       Optional<Entity> result = repository.findById(entity.getId());
+       assertEquals(true, result.isPresent());
+       log.info("entity = {}", result.get());
+       assertEquals(EntityStatus.IN_PROGRESS, result.get().getState());
        
        // Trigger transition
        stateMachine.onTransition(EntityEvent.DECISION, entity.getId());
-       Entity result2 = repository.findOne(entity.getId());
-       log.info("entity = {}", result2);
-       assertEquals(EntityStatus.CANCELED, result2.getState());
+       Optional<Entity> result2 = repository.findById(entity.getId());
+       assertEquals(true, result2.isPresent());
+       log.info("entity = {}", result2.get());
+       assertEquals(EntityStatus.CANCELED, result2.get().getState());
        
     }
     
